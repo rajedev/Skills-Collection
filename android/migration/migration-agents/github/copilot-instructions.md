@@ -2,6 +2,8 @@
 
 These rules apply only when the work is a feature migration (anything under `cc-tasks/`, or a request to move a feature from a source project into a destination variant). For all other work, ignore this file.
 
+**Author:** Rajendhiran Easu
+
 Before any migration work, read `cc-tasks/_shared/rules.md` fully. It is the single source of truth. Templates for output files are in `cc-tasks/_shared/templates.md`.
 
 ## Defaults (fill in once)

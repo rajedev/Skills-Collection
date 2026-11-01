@@ -2,6 +2,8 @@
 
 A three-agent workflow for GitHub Copilot in Android Studio. It moves **one feature at a time** from a **source project** into a **variant source set** of a destination app using **lift and shift**. You approve at the key gates, and progress is tracked in checklists.
 
+**Author:** Rajendhiran Easu
+
 **About this document.** This README is the project reference. It holds the rules, the agent outlines, the file templates, the setup and a worked example in one place. The agents themselves read only `cc-tasks/_shared/rules.md` and their own agent file. Section `5.N` below mirrors section `N` of `rules.md`, section 6 mirrors the three agent files, and Appendix A mirrors `templates.md`. When behavior needs tuning, change `rules.md` or the agent file first, then update this document (see Appendix B).
 
 **Status:** complete and ready for a pilot run. It has not been tested in Android Studio yet (see section 15).

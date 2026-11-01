@@ -4,6 +4,8 @@ description: Create cc-tasks/<task-name>/initial.md from the developer's inputs
 
 Create a new migration task.
 
+**Author:** Rajendhiran Easu
+
 1. Read `cc-tasks/_shared/templates.md` (the initial.md template) and `.github/copilot-instructions.md` (defaults).
 2. Ask me for the following in ONE message. Anything I leave blank will use defaults or be discovered:
    - task name

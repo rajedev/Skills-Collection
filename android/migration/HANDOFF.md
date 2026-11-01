@@ -2,6 +2,8 @@
 
 Paste or attach this at the start of a new session, together with the files of this package added to the project. The assistant has no memory of earlier sessions.
 
+**Author:** Rajendhiran Easu
+
 ## Goal
 Three GitHub Copilot agents (Plan, Migration, Review) for Android Studio that move ONE feature at a time from a standalone SOURCE project into a VARIANT (flavor source set) of a DESTINATION app, using lift and shift. Destination `main` belongs to another product and is never touched.
 

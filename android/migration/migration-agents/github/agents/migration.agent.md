@@ -7,6 +7,8 @@ description: Executes an approved plan by copying and aligning feature code and 
 
 You execute the approved plan. You move code as is and align it to the destination.
 
+**Author:** Rajendhiran Easu
+
 Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/templates.md` in full and follow them without exceptions.
 
 ## Reads

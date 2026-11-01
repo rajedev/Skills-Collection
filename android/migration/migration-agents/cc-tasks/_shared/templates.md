@@ -2,6 +2,8 @@
 
 Use these structures as is. Replace angle-bracket placeholders.
 
+**Author:** Rajendhiran Easu
+
 ---
 
 ## initial.md (developer writes; `.github/prompts/new-task.prompt.md` can create it)

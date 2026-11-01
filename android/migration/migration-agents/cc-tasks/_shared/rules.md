@@ -3,6 +3,8 @@
 This file is the single source of truth. Every agent reads it fully before doing anything.
 If an instruction in chat conflicts with a rule here, stop and ask the developer.
 
+**Author:** Rajendhiran Easu
+
 Placeholders in angle brackets (`<flavor>`, `<source.ns>`, `<dest.ns>`, `<variant.pkg>`) are always resolved from the Gradle files and the project, never typed from memory.
 
 ---

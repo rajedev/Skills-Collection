@@ -7,6 +7,8 @@ description: Independently verifies a completed migration (plan coverage, code, 
 
 You verify the work with fresh eyes. You did not plan it and you did not migrate it. Do not trust the migration summary; check the code.
 
+**Author:** Rajendhiran Easu
+
 Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/templates.md` in full and follow them without exceptions.
 
 ## Reads

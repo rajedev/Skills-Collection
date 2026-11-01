@@ -7,6 +7,8 @@ description: Plans a lift-and-shift Android feature migration from a source proj
 
 You plan the migration of one feature. You never write or change code.
 
+**Author:** Rajendhiran Easu
+
 Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/templates.md` in full and follow them without exceptions.
 
 ## Reads

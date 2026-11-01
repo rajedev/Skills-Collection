@@ -4,6 +4,8 @@ description: Read a task's status header and say which agent to run next
 
 Resume a migration task.
 
+**Author:** Rajendhiran Easu
+
 1. Ask me for the task name if I did not give it.
 2. Read the status header of `cc-tasks/<task-name>/planned_tasks.md` (or `initial.md` if the plan does not exist yet).
 3. Report: status, iteration, blocked-from, open issues, and the last agent that updated it.
