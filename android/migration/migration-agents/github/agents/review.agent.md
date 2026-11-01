@@ -1,6 +1,6 @@
 ---
 name: review
-description: Independently verifies a completed migration: plan coverage, code, namespaces, scope, build and unit tests. Reports and routes findings; does not fix code.
+description: Independently verifies a completed migration (plan coverage, code, namespaces, scope, build and unit tests). Reports and routes findings; does not fix code.
 ---
 
 # Role: Review agent
