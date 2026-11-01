@@ -60,6 +60,13 @@ The Plan agent builds the file list with this traversal, not by guessing.
 4. Stop when no unvisited references remain. Skip anything in "Must exclude" or "Out of scope".
 5. Save the visited list in `plan-output/findings.md`.
 
+Layout rule: for every Activity, Fragment, adapter, ViewHolder, custom view and composable-hosting view on the list, find the layout it uses (R.layout.x, setContentView, inflate, or the binding class name mapped back to its layout file, for example ItemFooBinding to item_foo.xml). Copy that layout and all its qualified variants (layout-land, layout-sw600dp and so on), plus every layout it includes. Never copy generated binding classes; they are generated from the layout. Copy only the resource entries the layouts use.
+
+Dependency rule: for every reference the feature makes outside its own classes (members of base classes, session, user or app-state objects, injected types, singletons, Application or Context level services), classify it:
+1. **Copy:** the code can be copied from the source into the variant (the normal case). Bring only the members used.
+2. **Host-provided:** the value or state is created or filled at runtime by the app (for example session or login data, a Dagger component, SDK init). Copying the class gives the variant its own empty instance, not the app's. Do not assume. Record it under "Dependencies and host expectations" in `plan-output/findings.md` and ask how it should reach the feature (Intent extras, Fragment arguments, a call the host makes, or another way).
+3. **Implicit:** behavior the feature relies on but never calls directly (for example base-class `onCreate` setup, toolbar or analytics init, lifecycle observers). List base-class overrides that were not reached and ask whether the feature depends on them.
+
 ## 5. What a feature can include (checklist for plan and review)
 
 - **Code:** Activities, Fragments, custom views, WebView and base classes, ViewModels, repositories, managers, models, nested classes, generics, adapters, view holders, listeners, analytics, utils, constants, Kotlin and Java
@@ -84,6 +91,8 @@ Binary resources (PNG, WebP, fonts, audio) cannot be reliably written as text. C
 | Same resource name already in the variant | Existing file: add only missing entries. Same name with a different value: stop and ask |
 | Same layout name with different content | Stop and ask (view IDs and binding fields would change) |
 
+Copy method: for a file brought **whole, with all its members** (action `create`), copy it with a terminal command (`cp`) and then apply only alignment edits. Do not retype it. For merged members, copy their text exactly as it appears in the source. Do not reformat, rename, reorder or tidy anything. If no terminal is available, copy the text exactly as read and say so in `migration-output/summary.md`; the review agent will diff it.
+
 Copy code as is. The only edits to copied code are alignment edits (section 7). Anything else is a forced change (section 13).
 
 ## 7. Namespace and import alignment
@@ -99,7 +108,9 @@ Destination `R`, binding, `BR` and `BuildConfig` come from the `namespace` in th
 | Binding classes | `<source.ns>.databinding.*` | `<dest.ns>.databinding.*` |
 | `BR` | `<source.ns>.BR` | `<dest.ns>.BR` |
 | `BuildConfig` | `<source.ns>.BuildConfig` | `<dest.ns>.BuildConfig` |
-| Feature classes | `<source.pkg>` | `<variant.pkg>` (keep names and structure unless forced) |
+| Feature classes | `<source.pkg>` | Same `<source.pkg>`, unchanged (only a forced change, listed in section 13, may alter it) |
+
+Package and file names are kept **as is**. Recreate the same sub-package folders in the variant (for example `.../help/ui/adapter/ArticleAdapter.kt` goes to `src/<flavor>/java/.../help/ui/adapter/ArticleAdapter.kt`), create only the packages that contain migrated files, and reuse a package if it already exists in the variant. The `package` line must match the folder. Nested, inner, companion and sealed classes stay inside their parent class. Only `R`, binding, `BR` and `BuildConfig` follow the destination namespace.
 
 3. Apply the mapping to Kotlin, Java, tests, layout XML, manifest and nav graphs:
    - imports, including `import static`; replace wildcards with explicit imports
@@ -110,7 +121,7 @@ Destination `R`, binding, `BR` and `BuildConfig` come from the `namespace` in th
 4. A file whose package equals the destination `namespace` needs no `R` import. Compare each file's new package before adding or removing imports.
 5. With non-transitive R classes, library resources need the owning module's `R`. Resources that exist only in a source library module are copied into the variant `res`.
 6. Optimize imports and remove wrong ones at the end.
-7. After alignment, search the migrated files for the **source namespace as a literal string** in `.kt`, `.java`, `.xml` and the manifest. None may remain.
+7. After alignment, search the migrated files for references to generated classes qualified with the source namespace (`<source.ns>.R`, `<source.ns>.databinding.`, `<source.ns>.BR`, `<source.ns>.BuildConfig`, and any source library `R` package) in `.kt`, `.java`, `.xml` and the manifest. None may remain. Package names of copied classes are kept as is, so a plain search for the namespace string can also match legitimate packages (for example when the package root equals the namespace); judge each hit.
 
 ## 8. Dagger
 
@@ -118,7 +129,7 @@ Dagger is not a special case. It follows the same lift-and-shift rules.
 
 - Find the feature's Dagger pieces in the source (components, subcomponents, modules, provides, binds, scopes, qualifiers, inject classes, factories, constants used by them) and copy them as is.
 - Take only the members the feature needs. If the file exists in the variant, add only those members and leave everything else alone.
-- Align package, `R`, binding and `BuildConfig` imports only.
+- Align `R`, binding and `BuildConfig` imports only. Package and file names stay as is.
 - Build. If Dagger reports a missing binding, copy that provider from the source and log it.
 - Read only the **first** Dagger error; later ones are usually cascades.
 - If something cannot be fixed by copying or aligning (for example a duplicate binding), log it in `gaps.md` and ask.
@@ -154,6 +165,7 @@ Dagger is not a special case. It follows the same lift-and-shift rules.
 7. Version conflicts
 8. Anything the traversal reaches that looks like a different feature rather than part of this one (ask before including it)
 9. Any assumption about behavior that cannot be confirmed from code
+10. Runtime state or setup the feature depends on that is created elsewhere (session or user data, DI component creation or the inject call, Application-level init, base-class lifecycle setup)
 
 Ask all clarifying questions in one batch, not one at a time. Never assume.
 
@@ -164,7 +176,7 @@ Written by the Migration agent in `migration-output/summary.md`, verified by the
 - Entry class, fully qualified name in the variant
 - How it is launched: Intent action or component, required extras, Fragment arguments, `newInstance` signature (list every launch path found, the one in `initial.md` first)
 - Manifest entries added in the variant
-- What the feature expects from the host: container view ID, theme, init calls, callbacks to implement, Application-level requirements
+- What the feature expects from the host: container view ID, theme, init calls, callbacks to implement, Application-level requirements, session or user data it reads and how it must be supplied, DI component creation or the inject call, base-class setup it relies on
 - Note for the developer: a string-based Intent contract is the safest way to wire from `main` when other flavors do not contain the class. A direct class reference needs matching stubs in those flavors.
 
 ## 13. Forced changes

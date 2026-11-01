@@ -32,6 +32,7 @@ Must include: <classes, layouts, resources the agent might miss>
 Must exclude: <anything that must not move>
 Locales: all   (or list)
 Gradle pre-approval: no   (or: flavor-scoped dependency additions at source versions)
+Known host-provided things: <session/user data, DI component or inject call, base-class setup, init calls you know about>   (optional)
 
 ## Out of scope
 <other features living in the same files>
@@ -114,6 +115,10 @@ Open issues: 0
 ## Discovered beyond hints
 | What | Where | Why the feature needs it |
 |---|---|---|
+
+## Dependencies and host expectations
+| Dependency | Kind (copy / host-provided / implicit) | Where used | Decision |
+|---|---|---|---|
 
 ## Skipped (Must exclude / Out of scope)
 | What | Why |
@@ -207,6 +212,8 @@ Rules: follow cc-tasks/_shared/rules.md. Source is read-only. Write only to the 
 - [ ] No source namespace left (kt, java, xml, manifest, tests)
 - [ ] Imports resolve to variant / destination namespaces (none to main classes)
 - [ ] Existing variant members unchanged
+- [ ] Copied files match the source except alignment lines (diff)
+- [ ] Every row in "Dependencies and host expectations" copied or listed in the entry contract
 - [ ] No changes outside the variant (except approved Gradle)
 - [ ] Gradle edits approved, no version bumps
 - [ ] assemble<Flavor>Debug: PASS / FAIL

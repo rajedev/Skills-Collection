@@ -26,7 +26,7 @@ Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/tem
 1. **Preflight** (rules section 2). Report each check. Stop if the source path cannot be read.
 2. **Resolve inputs.** Use filled-in fields as starting points. Honor "Must exclude" and "Out of scope" as hard limits. Resolve blanks from `.github/copilot-instructions.md` and say which defaults you used.
 3. **Namespaces.** Read the source namespace(s) and the destination `namespace` from the Gradle files. Build the mapping table.
-4. **Discover** the whole feature with the traversal in rules section 4. Keep the visited list. Record anything found beyond the developer's hints under "Discovered beyond hints".
+4. **Discover** the whole feature with the traversal in rules section 4. Keep the visited list. Record anything found beyond the developer's hints under "Discovered beyond hints". Apply the dependency rule (rules section 4): classify every outside reference as copy, host-provided or implicit, record them under "Dependencies and host expectations" in findings.md, and put the host-provided and implicit ones in the question batch.
 5. **Check the variant.** For each file, decide copy, merge or create by looking only at the destination variant source sets.
 6. **Find unit tests** in the source for every class on the list.
 7. **Compare Gradle** (rules section 9). List required changes as approval items, noting any covered by the developer's pre-approval.

@@ -27,17 +27,18 @@ Status is `Migrated`. Otherwise stop and tell the developer what is missing.
 
 1. **Preflight** (rules section 2). Set `In Review` and the iteration.
 2. **Plan check:** every row of `prompt.md` and every phase item is accounted for in `file-map.md`. The visited list is complete. Nothing out of scope was pulled in.
-3. **Completeness:** compare the source feature files against the variant (code, resources, all in-scope locales, densities, night variants, manifest entries, tests). Check that binary resources arrived.
+3. **Completeness:** compare the source feature files against the variant (code, resources, all in-scope locales, densities, night variants, manifest entries, tests). Check that binary resources arrived. Check that every layout used by a migrated class (through `R.layout`, `setContentView`, `inflate` or its binding class) exists in the variant, together with its qualified variants (`layout-land` and so on) and the layouts it includes.
 4. **Hints and limits:** every "Must include" item is present. Nothing from "Must exclude" or "Out of scope" was migrated. Everything found beyond hints was listed in the plan.
-5. **Namespace:** search the variant for the source namespace as a literal string in `.kt`, `.java`, `.xml` and the manifest, including tests. None may remain. Verify `R`, binding, `BR` and `BuildConfig` imports use the destination namespace.
+5. **Namespace:** search the variant, including tests, for references to generated classes qualified with the source namespace (`<source.ns>.R`, `<source.ns>.databinding.`, `<source.ns>.BR`, `<source.ns>.BuildConfig`, and any source library `R` package) in `.kt`, `.java`, `.xml` and the manifest. None may remain. Package names of copied classes are kept as is, so a plain search for the namespace string can also match legitimate packages (for example when the package root equals the namespace); judge each hit. Verify `R`, binding, `BR` and `BuildConfig` imports use the destination namespace.
 6. **Imports:** every import resolves to the variant package, the destination `R` and binding packages, or an approved library. None silently resolve to a same-named class in `main` (for example `BaseActivity`).
 7. **Merges:** existing variant members are unchanged; only feature members were added. Compare against the baseline when git is available.
-8. **Boundary:** nothing changed outside the variant except approved Gradle edits (`git diff` against the baseline if available, otherwise `file-map.md` and the file system). Ignore `.github/` and `cc-tasks/`.
-9. **Gradle:** every edit was approved or pre-approved, flavor-scoped where possible, and no version was bumped.
-10. **Build and tests:** run `assemble<Flavor>Debug`, `test<Flavor>DebugUnitTest` and lint if available (or the commands in `initial.md`). Record results. If there is no terminal, write the exact commands, ask the developer to run them and paste the output, then continue.
-11. **Entry contract:** verify every item against the actual code and manifest.
-12. **Forced changes:** each is listed with a reason and none is missing.
-13. **planned_tasks.md:** every ticked checkbox is true. Uncheck wrong ones with a note.
+8. **Copy fidelity:** for every file created whole, diff it against its source file (`diff <source-file> <variant-file>`). Every difference must be an alignment change (`R`, binding, `BR`, `BuildConfig`, imports, class names in XML or manifest) or a listed forced change. Flag any other difference as a code gap. For merged members, compare their text with the source the same way. If there is no terminal, compare by reading and state that this check was done by reading only.
+9. **Boundary:** nothing changed outside the variant except approved Gradle edits (`git diff` against the baseline if available, otherwise `file-map.md` and the file system). Ignore `.github/` and `cc-tasks/`.
+10. **Gradle:** every edit was approved or pre-approved, flavor-scoped where possible, and no version was bumped.
+11. **Build and tests:** run `assemble<Flavor>Debug`, `test<Flavor>DebugUnitTest` and lint if available (or the commands in `initial.md`). Record results. If there is no terminal, write the exact commands, ask the developer to run them and paste the output, then continue.
+12. **Entry contract:** verify every item against the actual code and manifest. Also confirm every row in "Dependencies and host expectations" is either copied into the variant or listed in the entry contract.
+13. **Forced changes:** each is listed with a reason and none is missing.
+14. **planned_tasks.md:** every ticked checkbox is true. Uncheck wrong ones with a note.
 
 ## Reporting issues
 

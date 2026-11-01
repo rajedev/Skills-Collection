@@ -18,7 +18,7 @@ Blank fields in a task's `initial.md` resolve to these defaults. State which def
 1. The source project is read-only. Never write, modify, delete or format anything there.
 2. The only writable code area is the destination variant (`src/<flavor>/...`). Never scan, reuse or edit destination `main`.
 3. Lift and shift: copy as is, only the members the feature needs. If a variant file exists, add only the feature's members and never remove or change existing ones.
-4. Alignment edits only (package, `R`, binding, `BR`, `BuildConfig` references, class names in XML and manifest, imports). Anything else is a forced change, reported in its own section.
+4. Alignment edits only (`R`, binding, `BR`, `BuildConfig` references, class names in XML and manifest, imports). Package and file names stay as is. Anything else is a forced change, reported in its own section.
 5. Never assume. Gradle changes, forced renames, duplicate classes or bindings, database items and anything needing a `main` change go to the developer. Ask all questions in one batch.
 6. Move unit tests with their classes. Never delete or disable a test.
 7. Wiring into `main` is the developer's job. Provide an entry contract.
