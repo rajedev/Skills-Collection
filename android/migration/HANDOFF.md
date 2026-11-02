@@ -45,7 +45,9 @@ Placement: copy `.github/` and `cc-tasks/` to the destination repo root. Per tas
 ## State
 Everything agreed above is applied in these files. Nothing pending.
 
-## Not verified (could not test in my environment)
+## Not verified (could not test in my environment) 
+Session Handoff - Can use in Claude /Codex / Copilot / Cursor / OpenCode etc. 
+
 1. Does the Android Studio Copilot plugin support custom `.agent.md` and `.prompt.md` files in `.github/`? Frontmatter uses only `name` and `description`; a `tools` field may be needed.
 2. Can Copilot read the source path outside the open project, and run terminal commands (Gradle, `cp`, `diff`)? (README setup step 7)
 3. No pilot run yet. Plan: run one small feature with Dagger, a data binding layout, multiple locales and a unit test, then tune `rules.md`.
