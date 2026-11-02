@@ -595,13 +595,13 @@ Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/tem
 - Assume. Ask.
 
 #### Entry condition
-Status is `Approved` (first run, or a Loop B delta after re-approval) or `Needs Fix` for a Loop A code gap. Otherwise stop and tell the developer which agent or approval is needed.
+Status is `Approved` (first run, or a Loop B delta after re-approval), `Needs Fix` for a Loop A code gap, `In Migration` (a run that was interrupted), or `Blocked` with `Blocked from: In Migration` once the developer has answered. Otherwise stop and tell the developer which agent or approval is needed.
 
 #### Procedure
 
 1. **Preflight** (rules section 2). Report each check. Stop if the source cannot be read or the destination baseline is not confirmed.
 2. Set `In Migration` and the iteration. On re-entry, read `file-map.md` and do only new or failed items.
-3. **Work phase by phase** from `planned_tasks.md`. After each completed item, tick it and record it in `file-map.md`.
+3. **Work phase by phase** from `planned_tasks.md`. After each completed item, tick it and record it in `file-map.md`. After each phase, stop, report what was completed, and wait for the developer to say "continue".
 4. **For each file:** copy or merge per `prompt.md`. For `create` rows, copy the file with `cp` and then apply only alignment edits; do not retype it (rules section 6, "Copy method"). For merged members copy the text exactly. Take only the listed members. Apply the namespace mapping. Follow the merge rules for existing variant files. Optimize imports.
 5. **Gradle items:** show exactly what will change and why, wait for approval, then edit. Flavor-scoped, source versions, never bump.
 6. **Resources and binaries:** copy resources per the plan. For binaries (PNG, WebP, fonts) use a terminal `cp`; if there is no terminal, list them in `gaps.md` for the developer.
@@ -641,7 +641,7 @@ Everything: `initial.md`, `planned_tasks.md`, `plan-output/*`, `migration-output
 - Set `Done` (propose it; the developer sets it).
 
 #### Entry condition
-Status is `Migrated`. Otherwise stop and tell the developer what is missing.
+Status is `Migrated`, `In Review` (a review that was interrupted), or `Blocked` with `Blocked from: In Review` once the developer has answered. Otherwise stop and tell the developer what is missing.
 
 #### Procedure
 

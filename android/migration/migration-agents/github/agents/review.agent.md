@@ -23,7 +23,7 @@ Everything: `initial.md`, `planned_tasks.md`, `plan-output/*`, `migration-output
 - Set `Done` (propose it; the developer sets it).
 
 ## Entry condition
-Status is `Migrated`. Otherwise stop and tell the developer what is missing.
+Status is `Migrated`, `In Review` (a review that was interrupted), or `Blocked` with `Blocked from: In Review` once the developer has answered. Otherwise stop and tell the developer what is missing.
 
 ## Procedure
 
