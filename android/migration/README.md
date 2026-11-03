@@ -385,6 +385,10 @@ Binary resources (PNG, WebP, fonts, audio) cannot be reliably written as text. C
 | Same resource name already in the variant | Existing file: add only missing entries. Same name with a different value: stop and ask |
 | Same layout name with different content | Stop and ask (view IDs and binding fields would change) |
 
+Variant scan rule: before deciding create or merge, scan the whole destination variant (all packages under `src/<flavor>/java`, plus `res`, the manifest and the variant test source sets) for every class, resource and member the feature needs. Match by simple class name, not only by path, because an earlier partial move may have put it in a different package. For each hit: same fully qualified name means merge only the missing members; same simple name in a different package means do not create a duplicate, stop and ask (reuse the existing class, add the source class under its source package, or another option); only some of the feature's members present means add only the missing ones; already complete means skip and record it. Record every hit under "Existing variant scan" in `plan-output/findings.md`. Never scan `main`.
+
+Base class rule: for every base or abstract class the feature extends (BaseActivity, BaseFragment, base custom views, base WebView classes and so on), compare the source class with what the variant has: the superclass chain, the members the feature uses, overrides and lifecycle setup, and differences in behavior. Choose the approach that fits the variant (for example merge the needed members into the variant's class, create a variant copy with only the needed members, or add a small subclass or helper in the variant). Never change existing variant members. Record each class under "Base class and inheritance decisions" in `plan-output/findings.md`: what differs, the approach chosen, why, the alternatives considered, and the flaws or risks of each alternative, including why the others were not adopted. If more than one approach is reasonable, put it in the question batch. The developer approves these decisions at plan approval. If the migration agent finds the chosen approach does not work, it stops, sets `Blocked` and asks.
+
 Copy method: for a file brought **whole, with all its members** (action `create`), copy it with a terminal command (`cp`) and then apply only alignment edits. Do not retype it. For merged members, copy their text exactly as it appears in the source. Do not reformat, rename, reorder or tidy anything. If no terminal is available, copy the text exactly as read and say so in `migration-output/summary.md`; the review agent will diff it.
 
 Copy code as is. The only edits to copied code are alignment edits (section 7). Anything else is a forced change (section 13).
@@ -546,7 +550,8 @@ Before anything else, read `cc-tasks/_shared/rules.md` and `cc-tasks/_shared/tem
 2. **Resolve inputs.** Use filled-in fields as starting points. Honor "Must exclude" and "Out of scope" as hard limits. Resolve blanks from `.github/copilot-instructions.md` and say which defaults you used.
 3. **Namespaces.** Read the source namespace(s) and the destination `namespace` from the Gradle files. Build the mapping table.
 4. **Discover** the whole feature with the traversal in rules section 4. Keep the visited list. Record anything found beyond the developer's hints under "Discovered beyond hints". Apply the dependency rule (rules section 4): classify every outside reference as copy, host-provided or implicit, record them under "Dependencies and host expectations" in findings.md, and put the host-provided and implicit ones in the question batch.
-5. **Check the variant.** For each file, decide copy, merge or create by looking only at the destination variant source sets.
+5. **Scan the variant.** Apply the variant scan rule (rules section 6): scan the whole destination variant (all packages, `res`, manifest, test source sets) for every class, resource and member on the list, matching by simple class name and not only by path. Decide copy, merge, create or skip, and record every hit under "Existing variant scan" in findings.md. Never scan `main`.
+5a. **Base classes.** Apply the base class rule (rules section 6): compare each base or abstract class the feature extends with the variant's version, choose the approach, and record it under "Base class and inheritance decisions" in findings.md with why, the alternatives and their flaws. Put it in the question batch when more than one approach is reasonable.
 6. **Find unit tests** in the source for every class on the list.
 7. **Compare Gradle** (rules section 9). List required changes as approval items, noting any covered by the developer's pre-approval.
 8. **Ask one batch of questions** (only what you cannot resolve from code): mapping confirmation, Gradle items, database items, anything from the must-ask list. Set status `Draft` and wait. Do not write the plan until the answers arrive.
@@ -601,8 +606,8 @@ Status is `Approved` (first run, or a Loop B delta after re-approval), `Needs Fi
 
 1. **Preflight** (rules section 2). Report each check. Stop if the source cannot be read or the destination baseline is not confirmed.
 2. Set `In Migration` and the iteration. On re-entry, read `file-map.md` and do only new or failed items.
-3. **Work phase by phase** from `planned_tasks.md`. After each completed item, tick it and record it in `file-map.md`. After each phase, stop, report what was completed, and wait for the developer to say "continue".
-4. **For each file:** copy or merge per `prompt.md`. For `create` rows, copy the file with `cp` and then apply only alignment edits; do not retype it (rules section 6, "Copy method"). For merged members copy the text exactly. Take only the listed members. Apply the namespace mapping. Follow the merge rules for existing variant files. Optimize imports.
+3. **Work phase by phase** from `planned_tasks.md`. After each completed item, tick it and record it in `file-map.md`.
+4. **For each file:** copy or merge per `prompt.md`. For `create` rows, copy the file with `cp` and then apply only alignment edits; do not retype it (rules section 6, "Copy method"). For merged members copy the text exactly. Take only the listed members. Apply the namespace mapping. Follow the merge rules for existing variant files. Optimize imports. Follow the approved "Existing variant scan" and "Base class and inheritance decisions" in findings.md. If one does not work in practice, stop, set `Blocked`, log it in `gaps.md` and ask.
 5. **Gradle items:** show exactly what will change and why, wait for approval, then edit. Flavor-scoped, source versions, never bump.
 6. **Resources and binaries:** copy resources per the plan. For binaries (PNG, WebP, fonts) use a terminal `cp`; if there is no terminal, list them in `gaps.md` for the developer.
 7. **Alignment pass:** apply the mapping to code, tests, layout XML, manifest and nav graphs. Then search the migrated files for references to generated classes qualified with the source namespace (`<source.ns>.R`, `<source.ns>.databinding.`, `<source.ns>.BR`, `<source.ns>.BuildConfig`, and any source library `R` package) in `.kt`, `.java`, `.xml` and the manifest. None may remain. Package names of copied classes are kept as is, so a plain search for the namespace string can also match legitimate packages (for example when the package root equals the namespace); judge each hit. Flag inline fully qualified references and reflection strings instead of silently editing.
@@ -623,7 +628,7 @@ Status, iteration, items completed, build and test results, entry contract summa
 
 ### 6.3 Review agent (`review.agent.md`)
 
-File: `.github/agents/review.agent.md`. Frontmatter: `name`, `description` ("Independently verifies a completed migration: plan coverage, code, namespaces, scope, build and unit tests. Reports and routes findings; does not fix code."). The text below mirrors the file body.
+File: `.github/agents/review.agent.md`. Frontmatter: `name`, `description` ("Independently verifies a completed migration (plan coverage, code, namespaces, scope, build and unit tests). Reports and routes findings; does not fix code."). The text below mirrors the file body.
 
 You verify the work with fresh eyes. You did not plan it and you did not migrate it. Do not trust the migration summary; check the code.
 
@@ -651,7 +656,7 @@ Status is `Migrated`, `In Review` (a review that was interrupted), or `Blocked` 
 4. **Hints and limits:** every "Must include" item is present. Nothing from "Must exclude" or "Out of scope" was migrated. Everything found beyond hints was listed in the plan.
 5. **Namespace:** search the variant, including tests, for references to generated classes qualified with the source namespace (`<source.ns>.R`, `<source.ns>.databinding.`, `<source.ns>.BR`, `<source.ns>.BuildConfig`, and any source library `R` package) in `.kt`, `.java`, `.xml` and the manifest. None may remain. Package names of copied classes are kept as is, so a plain search for the namespace string can also match legitimate packages (for example when the package root equals the namespace); judge each hit. Verify `R`, binding, `BR` and `BuildConfig` imports use the destination namespace.
 6. **Imports:** every import resolves to the variant package, the destination `R` and binding packages, or an approved library. None silently resolve to a same-named class in `main` (for example `BaseActivity`).
-7. **Merges:** existing variant members are unchanged; only feature members were added. Compare against the baseline when git is available.
+7. **Merges:** existing variant members are unchanged; only feature members were added. Compare against the baseline when git is available. Also verify that each decision under "Existing variant scan" and "Base class and inheritance decisions" was followed, that no duplicate class exists under another package, and that the findings record why, the alternatives and the flaws.
 8. **Copy fidelity:** for every file created whole, diff it against its source file (`diff <source-file> <variant-file>`). Every difference must be an alignment change (`R`, binding, `BR`, `BuildConfig`, imports, class names in XML or manifest) or a listed forced change. Flag any other difference as a code gap. For merged members, compare their text with the source the same way. If there is no terminal, compare by reading and state that this check was done by reading only.
 9. **Boundary:** nothing changed outside the variant except approved Gradle edits (`git diff` against the baseline if available, otherwise `file-map.md` and the file system). Ignore `.github/` and `cc-tasks/`.
 10. **Gradle:** every edit was approved or pre-approved, flavor-scoped where possible, and no version was bumped.
@@ -912,7 +917,7 @@ Use the entry contract in `migration-output/summary.md` to call the feature from
 | `cc-tasks/_shared/rules.md` | Shared rules (section 5 here) | | |
 | `cc-tasks/_shared/templates.md` | Output file formats (Appendix A here) | | |
 
-The agent files use only `name` and `description` in their frontmatter. Check whether your Copilot plugin version needs more fields (for example a tools list) and add them if so. The prompts are shortcuts for you. They are not agents and are optional.
+The agent files use only `name` and `description` in their frontmatter. Keep the `description` value in double quotes: an unquoted value that contains a colon followed by a space is invalid YAML and the file will fail to load. Check whether your Copilot plugin version needs more fields (for example a tools list) and add them if so. The prompts are shortcuts for you. They are not agents and are optional.
 
 ---
 
@@ -1133,6 +1138,14 @@ Open issues: 0
 ## Dependencies and host expectations
 | Dependency | Kind (copy / host-provided / implicit) | Where used | Decision |
 |---|---|---|---|
+
+## Existing variant scan
+| Needed item (class / resource / member) | Found in variant (path, package) | Match (same name / different package / partial / none) | Decision |
+|---|---|---|---|
+
+## Base class and inheritance decisions
+| Base class | Source vs variant differences | Approach chosen | Why | Alternatives considered | Flaws / why not adopted |
+|---|---|---|---|---|---|
 
 ## Skipped (Must exclude / Out of scope)
 | What | Why |

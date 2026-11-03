@@ -122,6 +122,14 @@ Open issues: 0
 | Dependency | Kind (copy / host-provided / implicit) | Where used | Decision |
 |---|---|---|---|
 
+## Existing variant scan
+| Needed item (class / resource / member) | Found in variant (path, package) | Match (same name / different package / partial / none) | Decision |
+|---|---|---|---|
+
+## Base class and inheritance decisions
+| Base class | Source vs variant differences | Approach chosen | Why | Alternatives considered | Flaws / why not adopted |
+|---|---|---|---|---|---|
+
 ## Skipped (Must exclude / Out of scope)
 | What | Why |
 |---|---|
